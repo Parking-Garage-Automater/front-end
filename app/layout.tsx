@@ -7,6 +7,7 @@ import '../styles/globals.css';
 import SideNav from '@/components/side-nav';
 
 import Header from './header';
+import {StoreProvider} from './StoreProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,14 +24,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-
           <Header />
           <div className="flex">
             <SideNav />
             <div className="w-full overflow-x-auto">
               <div className="sm:h-[calc(99vh-60px)] overflow-auto ">
                 <div className="w-full flex justify-center mx-auto   overflow-auto h-[calc(100vh - 120px)] overflow-y-auto relative">
-                  <div className="w-full">{children}</div>
+                  <StoreProvider>{children}</StoreProvider>
+
                 </div>
               </div>
             </div>
