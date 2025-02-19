@@ -19,7 +19,6 @@ export const RegisterForm = () => {
         e.preventDefault()
         let paymentPlan = false;
         let profileURL = 'https://ui-avatars.com/api/?name=' + username;
-        console.log(username, licenseno, paymentPlan, profileURL)
         router.push('/dashboard');
         
 
