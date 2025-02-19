@@ -4,8 +4,6 @@ import React, { useState } from 'react';
 
 import Link from 'next/link';
 
-import gpsd_logo from '../public/gpsd_logo.png';
-
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,19 +25,15 @@ export default function Header() {
   return (
     <header className="flex items-center h-16 px-4 border-b shrink-0 md:px-6 justify-between">
       <Link
-        href="#"
+        href="/"
         className="flex items-center gap-2 text-lg font-semibold md:text-base"
         prefetch={false}
       >
-                      <Avatar>
-                <AvatarImage
-                  src={gpsd_logo.src}
-                  alt="@shadcn"
-                />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-        <span>Parkers</span>
+        <span>Parking Automater 🚗</span>
       </Link>
+      <div>
+        Hi! <span>👋</span> User
+      </div>
 
       <div className="ml-4 flex items-center gap-3">
         <DropdownMenu>
@@ -52,17 +46,13 @@ export default function Header() {
               <Avatar>
                 <AvatarImage
                   src="https://github.com/shadcn.png"
-                  alt="@shadcn"
+                  alt="User"
                 />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem>Logout</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

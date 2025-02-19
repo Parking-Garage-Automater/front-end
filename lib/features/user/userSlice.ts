@@ -1,10 +1,10 @@
+import { RootState } from '@/lib/store';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 type User = {
-    id: string;
+    username: string;
     licenseno: string;
-    paymentHistory: string[];
-    balance: number;
+    autopayment: boolean;
     profileURL: string;
 }
 
@@ -13,7 +13,7 @@ interface UserState {
 }
 
 const initialState: UserState = {
-    user: { id: 'nacroptic', licenseno: 'A123', paymentHistory: [], balance: 10, profileURL: 'https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50' },
+    user: { username: 'nacroptic', licenseno: 'A123', autopayment: false, profileURL: 'https://ui-avatars.com/api/?name=nacroptic' },
 };
 
 export const userSlice = createSlice({
@@ -30,5 +30,7 @@ export const userSlice = createSlice({
 });
 
 export const { setUser, clearUser } = userSlice.actions;
+
+export const getUser = (state: RootState) =>  state.user.user;
 
 export default userSlice.reducer;

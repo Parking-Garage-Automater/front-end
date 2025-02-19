@@ -24,20 +24,5 @@ export const NavItems = () => {
       active: isNavItemActive(pathname, '/profile'),
       position: 'top',
     },
-    {
-      name: 'Notifications',
-      href: '/notifications',
-      icon: <Bell size={20} />,
-      active: isNavItemActive(pathname, '/notifications'),
-      position: 'top',
-    },
-    {
-      name: 'Analytics',
-      href: '/Analytics',
-      icon: <ChartNoAxesCombinedIcon size={20} />,
-      active: isNavItemActive(pathname, '/analytics'),
-      position: 'top',
-    },
-
   ];
 };
