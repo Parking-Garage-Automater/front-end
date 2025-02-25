@@ -2,18 +2,24 @@
 import SideNav from "@/components/side-nav";
 import Header from "../header";
 import { getUserCookie, setUserCookie } from "@/components/cookies";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { API_CONSTANTS } from "@/APIConstants";
 import { setUser } from "@/lib/features/user/userSlice";
 import router from "next/router";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
+import { Progress } from "@/components/ui/progress"
 
 export default function Dashboard() {
 	const dispatch = useDispatch();
+	const [loading, setLoading] = useState(true);
+	const [progress, setProgress] = useState(40);
+
 
 	useEffect(() => {
-		fetchData();
+		fetchData().then((value: any) => {
+			setProgress(90);
+		});
 	}, [])
 
 	const fetchData = async () => {
@@ -30,17 +36,22 @@ export default function Dashboard() {
 			if (response.status == 'success') {
 				dispatch(setUser({
 					username: response.data.username, licenseno: response.data.licence,
-					autopayment: response.data.payment_plan, profileURL: response.data.profile_url
+					autopayment: response.data.payment_plan, profileURL: response.data.profile_url, id: response.data.id
 				}));
+				setLoading(false);
+
 			} else {
-				toast.error("Session Expired")
-				router.push('/login')
+				toast.error("Session Expired");
+				router.push('/login');
+				setLoading(false);
+
 			}
 		}
 	};
 
-	return (
-		<div>
+	return (loading ? (<div className="pt-96 flex items-center justify-center">
+		<Progress value={progress} className="w-[60%]" /></div>) :
+		(<div>
 			<Header />
 			<div className="flex">
 				<SideNav />
@@ -58,6 +69,6 @@ export default function Dashboard() {
 				</div>
 			</div>
 		</div>
-
+		)
 	);
 }
