@@ -13,7 +13,7 @@ interface UserState {
 }
 
 const initialState: UserState = {
-    user: { username: 'nacroptic', licenseno: 'A123', autopayment: false, profileURL: 'https://ui-avatars.com/api/?name=nacroptic' },
+    user: null,
 };
 
 export const userSlice = createSlice({
@@ -31,6 +31,6 @@ export const userSlice = createSlice({
 
 export const { setUser, clearUser } = userSlice.actions;
 
-export const getUser = (state: RootState) =>  state.user.user;
+export const getUser = (state: RootState) => state.user;
 
 export default userSlice.reducer;

@@ -6,41 +6,46 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { setUser } from '@/lib/features/user/userSlice'
+import { useDispatch } from 'react-redux';
+import { API_CONSTANTS } from '@/APIConstants'
+import { toast } from 'sonner'
+import { setUserCookie } from '@/components/cookies'
+
 
 
 export const LoginForm = () => {
     const [username, setUsername] = useState('')
     const [licenseno, setLicenseno] = useState('')
-    const [error, setError] = useState<string | null>(null)
+    const dispatch = useDispatch();
 
     const router = useRouter();
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        router.push('/dashboard');
-        
 
-        // try {
-        //     const res = await fetch('/api/register', {
-        //         method: 'POST',
-        //         body: JSON.stringify({
-        //             username,
-        //             licenseno,
-        //             paymentPlan,
-        //             profileURL
-        //         }),
-        //         headers: {
-        //             'Content-Type': 'application/json'
-        //         }
-        //     })
-        //     if (res.ok) {
-        //         redirect('/login');
-        //     } else {
-        //         setError((await res.json()).error)
-        //     }
-        // } catch (error: any) {
-        //     setError(error?.message)
-        // }
+        let url = API_CONSTANTS.USER_API + '/' + username + '/' + licenseno;
+
+        try {
+            const res = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            let response = await res.json();
+            if (response.status == 'success') {
+                setUserCookie(response.data.username, response.data.licence);
+                dispatch(setUser({username: response.data.username, licenseno: response.data.licence, 
+                    autopayment: response.data.payment_plan, profileURL: response.data.profile_url}));
+                toast.success("Login Successful");
+                router.push('/dashboard');
+            } else {
+                toast.error(response.message)
+            }
+        } catch (error: any) {
+            toast.error(error?.message)
+        }
     }
 
     return (
@@ -69,7 +74,6 @@ export const LoginForm = () => {
                     maxLength={5}
                 />
             </div>
-            {error && <Alert>{error}</Alert>}
             <div className="w-full">
                 <Button className="w-full" size="lg">
                     Login 

@@ -2,14 +2,15 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { NextURL } from "next/dist/server/web/next-url";
 
+
 export function middleware(req: NextRequest) {
-    const encryptedToken = req.cookies.get("authToken")?.value || "";
+    const userCookie = req.cookies.get("user_info")?.name || "";
     const { pathname, origin } = req.nextUrl;
 
-    const isUserValid = checkValidity(encryptedToken);
+    const isUserLoggedIn = checkValidity(userCookie);
 
-    if (!isUserValid) {
-        if (pathname !== "/login") {
+    if (!isUserLoggedIn) {
+        if (pathname === "/dashboard" || pathname === "/profile" || pathname === "/" ) {
             const loginURL = new NextURL("/login", origin);
             return NextResponse.redirect(loginURL);
         }
@@ -22,18 +23,16 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
 }
 
-const checkValidity = (encryptedToken: string) => {
+const checkValidity = (userCookie: string) => {
 
-    // Call verify api to check if token is valid
-    return true;
+    return userCookie !== "";
 }
 
 export const config = {
     matcher: [
       "/dashboard/:path*", 
-      "/login",
-      "/register",
       "/",
       "/dashboard",
+      "/profile"
     ],
   };

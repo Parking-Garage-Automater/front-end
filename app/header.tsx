@@ -10,17 +10,26 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { NavItems } from '@/config';
 import { Menu } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/lib/store';
+import { removeUserCookie } from '@/components/cookies';
+import { useRouter } from 'next/navigation';
 
 export default function Header() {
+  const router = useRouter();
   const navItems = NavItems();
   const [isOpen, setIsOpen] = useState(false);
+  const user = useSelector((state: RootState) => state.user);
+
+  const removeCookie = () => {
+    removeUserCookie();
+    router.push('/login');
+  }
 
   return (
     <header className="flex items-center h-16 px-4 border-b shrink-0 md:px-6 justify-between">
@@ -32,7 +41,7 @@ export default function Header() {
         <span>Parking Automater 🚗</span>
       </Link>
       <div>
-        Hi! <span>👋</span> User
+        Hi! <span>👋</span> { user.user?.username }
       </div>
 
       <div className="ml-4 flex items-center gap-3">
@@ -45,15 +54,15 @@ export default function Header() {
             >
               <Avatar>
                 <AvatarImage
-                  src="https://github.com/shadcn.png"
+                  src={user.user?.profileURL}
                   alt="User"
                 />
-                <AvatarFallback>CN</AvatarFallback>
+                <AvatarFallback>PA</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>Logout</DropdownMenuItem>
+            <DropdownMenuItem onClick={removeCookie}>Logout</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 

@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { API_CONSTANTS } from '@/APIConstants'
+import { toast } from 'sonner'
 
 
 export const RegisterForm = () => {
@@ -17,32 +19,31 @@ export const RegisterForm = () => {
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        let paymentPlan = false;
         let profileURL = 'https://ui-avatars.com/api/?name=' + username;
-        router.push('/dashboard');
-        
+        let url = API_CONSTANTS.USER_API;
 
-        // try {
-        //     const res = await fetch('/api/register', {
-        //         method: 'POST',
-        //         body: JSON.stringify({
-        //             username,
-        //             licenseno,
-        //             paymentPlan,
-        //             profileURL
-        //         }),
-        //         headers: {
-        //             'Content-Type': 'application/json'
-        //         }
-        //     })
-        //     if (res.ok) {
-        //         redirect('/login');
-        //     } else {
-        //         setError((await res.json()).error)
-        //     }
-        // } catch (error: any) {
-        //     setError(error?.message)
-        // }
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                body: JSON.stringify({
+                    username: username,
+                    licence: licenseno,
+                    profile_url: profileURL,
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            let response = await res.json();
+            if (response.status == 'success') {
+                toast.success("Registration Successful");
+                router.push('/login');
+            } else {
+                toast.error(response.message)
+            }
+        } catch (error: any) {
+            toast.error(error.message)
+        }
     }
 
     return (
