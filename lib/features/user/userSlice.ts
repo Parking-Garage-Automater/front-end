@@ -6,6 +6,7 @@ type User = {
     licenseno: string;
     autopayment: boolean;
     profileURL: string;
+    id: number;
 }
 
 interface UserState {

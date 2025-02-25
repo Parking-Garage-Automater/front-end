@@ -31,7 +31,8 @@ export default function Home() {
 			if (response.status == 'success') {
 				dispatch(setUser({
 					username: response.data.username, licenseno: response.data.licence,
-					autopayment: response.data.payment_plan, profileURL: response.data.profile_url
+					autopayment: response.data.payment_plan, profileURL: response.data.profile_url,
+					id: response.data.id
 				}));
 			} else {
 				toast.error("Session Expired")

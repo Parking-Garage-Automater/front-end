@@ -8,6 +8,7 @@ import { setUser } from "@/lib/features/user/userSlice";
 import router from "next/router";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { ProfileForm } from "./form";
 
 export default function Profile() {
     const dispatch = useDispatch();
@@ -30,7 +31,8 @@ export default function Profile() {
 			if (response.status == 'success') {
 				dispatch(setUser({
 					username: response.data.username, licenseno: response.data.licence,
-					autopayment: response.data.payment_plan, profileURL: response.data.profile_url
+					autopayment: response.data.payment_plan, profileURL: response.data.profile_url,
+					id: response.data.id
 				}));
 			} else {
 				toast.error("Session Expired")
@@ -48,8 +50,7 @@ export default function Profile() {
             <div className="w-full flex justify-center mx-auto   overflow-auto h-[calc(100vh - 120px)] overflow-y-auto relative">
               <div className='flex gap-2 pt-3'>
                 <div className="flex gap-4">
-                  <button className="w-40 h-16 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded">
-                    Profile</button>
+                  <ProfileForm/>
                 </div>
               </div>
             </div>

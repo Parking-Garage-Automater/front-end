@@ -36,7 +36,7 @@ export const LoginForm = () => {
             let response = await res.json();
             if (response.status == 'success') {
                 setUserCookie(response.data.username, response.data.licence);
-                dispatch(setUser({username: response.data.username, licenseno: response.data.licence, 
+                dispatch(setUser({username: response.data.username, licenseno: response.data.licence, id: response.data.id, 
                     autopayment: response.data.payment_plan, profileURL: response.data.profile_url}));
                 toast.success("Login Successful");
                 router.push('/dashboard');
