@@ -8,7 +8,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 
-export const RegisterForm = () => {
+export const LoginForm = () => {
     const [username, setUsername] = useState('')
     const [licenseno, setLicenseno] = useState('')
     const [error, setError] = useState<string | null>(null)
