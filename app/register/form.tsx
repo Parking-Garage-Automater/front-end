@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { API_CONSTANTS } from '@/APIConstants'
+import { API_CONSTANTS } from '@/constants/ApiConstants'
 import { toast } from 'sonner'
 
 
@@ -20,7 +20,7 @@ export const RegisterForm = () => {
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         let profileURL = 'https://ui-avatars.com/api/?name=' + username;
-        let url = API_CONSTANTS.USER_API;
+        let url = API_CONSTANTS.REGISTER;
 
         try {
             const res = await fetch(url, {

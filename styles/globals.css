@@ -17,6 +17,10 @@ body {
   height: 90vh;
 }
 
+.align-card {
+  margin-top: 50%;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

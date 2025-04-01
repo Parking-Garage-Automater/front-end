@@ -1,56 +1,69 @@
 'use client'
 import SideNav from "@/components/side-nav";
 import Header from "../header";
-import { getUserCookie, setUserCookie } from "@/components/cookies";
-import { useEffect, useState } from "react";
-import { API_CONSTANTS } from "@/APIConstants";
-import { setUser } from "@/lib/features/user/userSlice";
-import router from "next/router";
+import {
+	Card,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card"
+import "@/styles/globals.css"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useDispatch } from "react-redux";
-import { Progress } from "@/components/ui/progress"
+import { API_CONSTANTS } from "@/constants/ApiConstants";
 
 export default function Dashboard() {
-	const dispatch = useDispatch();
-	const [loading, setLoading] = useState(true);
-	const [progress, setProgress] = useState(40);
+	const [parkingSpots, setParkingSpots] = useState<{ [key: string]: boolean }>({
+		a1: false,
+		a2: false,
+	});
+	const licenseno: string = localStorage.getItem('license') || '';
 
 
 	useEffect(() => {
-		fetchData().then((value: any) => {
-			setProgress(90);
-		});
-	}, [])
+		const worker = new Worker("/parkingSpotWorker.js");
+		worker.postMessage({ apiUrl: API_CONSTANTS.GET_PARKING_SPOT_STATUS });
 
-	const fetchData = async () => {
-		let cookieData = getUserCookie();
-		if (cookieData) {
-			let url = API_CONSTANTS.USER_API + '/' + cookieData.username + '/' + cookieData.license;
+		worker.onmessage = (event) => {
+			console.log(event.data);
+			let parkingSpotData = event.data;
+			if (parkingSpotData.amount_in_use > 0) {
+				setParkingSpots(parkingSpotData.lot)
+			}
+		};
+
+		return () => worker.terminate();
+	}, []);
+
+	const MakePayment = async () => {
+		try {
+			const license = localStorage.getItem('license') || '';
+			let url = API_CONSTANTS.PAYMENT;
 			const res = await fetch(url, {
-				method: 'GET',
+				method: 'POST',
+				body: JSON.stringify({
+					plate_number: license,
+					source: "website",
+				}),
 				headers: {
 					'Content-Type': 'application/json'
 				}
 			})
 			let response = await res.json();
+			console.log(response);
 			if (response.status == 'success') {
-				dispatch(setUser({
-					username: response.data.username, licenseno: response.data.licence,
-					autopayment: response.data.payment_plan, profileURL: response.data.profile_url, id: response.data.id
-				}));
-				setLoading(false);
-
+				console.log(response);
+				toast.success("Login Successful");
 			} else {
-				toast.error("Session Expired");
-				router.push('/login');
-				setLoading(false);
-
+				toast.error(response.detail);
 			}
+		} catch (error: any) {
+			toast.error(error?.message)
 		}
 	};
 
-	return (loading ? (<div className="pt-96 flex items-center justify-center">
-		<Progress value={progress} className="w-[60%]" /></div>) :
+	return (
 		(<div>
 			<Header />
 			<div className="flex">
@@ -58,11 +71,32 @@ export default function Dashboard() {
 				<div className="w-full overflow-x-auto">
 					<div className="sm:h-[calc(99vh-60px)] overflow-auto ">
 						<div className="w-full flex justify-center mx-auto   overflow-auto h-[calc(100vh - 120px)] overflow-y-auto relative">
-							<div className='flex gap-2 pt-3'>
-								<div className="flex gap-4">
-									<button className="w-40 h-16 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded">
-										Dashboard</button>
+							<div className='flex flex-col gap-2 pt-3'>
+								{licenseno !== 'admin' && <div className="flex justify-center">
+									<Card className="w-[25vw] h-[12vh]">
+										<CardHeader>
+											<CardTitle className="text-center text-black">Make Payment</CardTitle>
+											<CardDescription className="text-center">
+												<Button onClick={MakePayment}>
+													Pay
+												</Button></CardDescription>
+										</CardHeader>
+									</Card>
+								</div>}
+								<div className="flex justify-center gap-4">
+									{Object.entries(parkingSpots).map(([key, value]) => (
+										<div key={key}>
+											<Card className={!value ? 'bg-green-500 w-[30vw] h-[20vh]' : 'bg-red-500 w-[30vw] h-[20vh]'}>
+												<CardHeader>
+													<CardTitle className="text-center">{!value ? 'Parking Spot Available' : 'Parking Spot In Use'}</CardTitle>
+													<CardDescription className="text-center text-black">Spot {key.toUpperCase()}</CardDescription>
+												</CardHeader>
+											</Card>
+										</div>
+									))}
+
 								</div>
+
 							</div>
 						</div>
 					</div>

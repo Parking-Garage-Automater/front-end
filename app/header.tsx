@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import Link from 'next/link';
 
@@ -15,19 +15,52 @@ import {
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { NavItems } from '@/config';
 import { Menu } from 'lucide-react';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/lib/store';
-import { removeUserCookie } from '@/components/cookies';
+import { deleteCookie } from "cookies-next";
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/authContext/authContext';
+import { API_CONSTANTS } from '@/constants/ApiConstants';
 
 export default function Header() {
   const router = useRouter();
   const navItems = NavItems();
   const [isOpen, setIsOpen] = useState(false);
-  const user = useSelector((state: RootState) => state.user);
+  const { user, logout } = useAuth();
+  const [username, setUsername] = useState('')
+  
+  useEffect(() => {
+        
+        fetchData().then((value: any) => {
+        })
 
-  const removeCookie = () => {
-    removeUserCookie();
+  }, [])
+
+  const fetchData = async () => {
+    let licenseno: any = localStorage.getItem('license') || 0;
+    let url = API_CONSTANTS.GET_USER_DETAILS + licenseno;
+    const res = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    let response = await res.json();
+    console.log(localStorage.getItem('license'), response);
+    if(response.status == 'success'){
+        let userData = response.data;
+        setUsername(userData?.username || '');
+
+    } else {
+        logout();
+        localStorage.removeItem('license');
+        deleteCookie('Token');
+        router.push('/login');
+    }
+  }
+
+  const logoutAccount = () => {
+    logout();
+    localStorage.removeItem('license');
+    deleteCookie('Token');
     router.push('/login');
   }
 
@@ -41,7 +74,7 @@ export default function Header() {
         <span>Parking Automater 🚗</span>
       </Link>
       <div>
-        Hi! <span>👋</span> { user.user?.username }
+        Hi! <span>👋</span> { username }
       </div>
 
       <div className="ml-4 flex items-center gap-3">
@@ -54,7 +87,7 @@ export default function Header() {
             >
               <Avatar>
                 <AvatarImage
-                  src={user.user?.profileURL}
+                  src={`https://ui-avatars.com/api/?name=` + username}
                   alt="User"
                 />
                 <AvatarFallback>PA</AvatarFallback>
@@ -62,7 +95,7 @@ export default function Header() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={removeCookie}>Logout</DropdownMenuItem>
+            <DropdownMenuItem onClick={logoutAccount}>Logout</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 

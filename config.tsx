@@ -12,9 +12,16 @@ export const NavItems = () => {
   return [
     {
       name: 'Home',
-      href: '/',
+      href: '/dashboard',
       icon: <Home size={20} />,
-      active: pathname === '/',
+      active: pathname === '/dashboard',
+      position: 'top',
+    },    
+    {
+      name: 'Analytics',
+      href: '/analytics',
+      icon: <ChartNoAxesCombinedIcon size={20} />,
+      active: isNavItemActive(pathname, '/analytics'),
       position: 'top',
     },
     {

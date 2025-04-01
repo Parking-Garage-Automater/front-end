@@ -15,37 +15,60 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-import { useDispatch, useSelector } from "react-redux"
-import { API_CONSTANTS } from "@/APIConstants"
-import { setUserCookie } from "@/components/cookies"
-import { setUser } from "@/lib/features/user/userSlice"
-import router from "next/router"
+import { deleteCookie } from "cookies-next";
+import { API_CONSTANTS } from "@/constants/ApiConstants"
+import { useRouter } from 'next/navigation'
 import { toast } from "sonner"
 import { Checkbox } from "@/components/ui/checkbox"
-import { RootState } from "@/lib/store";
+import { useAuth } from "@/authContext/authContext";
 
 export function ProfileForm() {
     const [username, setUsername] = useState('')
     const [licenseno, setLicenseno] = useState('')
     const [paymentPlan, setPaymentPlan] = useState(false)
     const [userId, setUserId] = useState(0)
-    const dispatch = useDispatch();
-    let userData = useSelector((state:RootState) => state.user.user);
-    console.log(userData);
-
+    const router = useRouter();
+    const { user, logout } = useAuth();
 	useEffect(() => {
-        console.log(userData)
-        setUsername(userData?.username || '');
-        setLicenseno(userData?.licenseno || '');
-        setPaymentPlan(userData?.autopayment || false);
-        setUserId(userData?.id || 0);
+        
+        fetchData().then((value: any) => {
+        })
+
 	}, [])
+
+    const fetchData = async () => {
+        let licenseno: any = localStorage.getItem('license') || 0;
+        setLicenseno(licenseno);
+        let url = API_CONSTANTS.GET_USER_DETAILS + licenseno;
+        const res = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        console.log(await res)
+        let response = await res.json();
+        console.log(localStorage.getItem('license'), response);
+        if(response.status == 'success'){
+            let userData = response.data;
+            setUsername(userData?.username || '');
+            setLicenseno(userData?.licence || '');
+            setUserId(userData?.id || 0);
+            setPaymentPlan(userData?.payment_plan || false);
+        } else {
+            logout();
+            localStorage.removeItem('license');
+            deleteCookie('Token');
+            toast.error("Failed to fetch user data");
+            router.push('/login');
+        }
+    }
 
     const onSubmit = async (e: FormEvent) => {
         e.preventDefault()
         let profileURL = 'https://ui-avatars.com/api/?name=' + username;
 
-        let url = API_CONSTANTS.USER_API + '/' + userId;
+        let url = API_CONSTANTS.UPDATE_USER + userId;
 
         try {
             const res = await fetch(url, {
@@ -60,15 +83,9 @@ export function ProfileForm() {
                 headers: {
                     'Content-Type': 'application/json'
                 }
-            })
+            });
             let response = await res.json();
             if (response.status == 'success') {
-                setUserCookie(response.data.username, response.data.licence);
-                dispatch(setUser({
-                    username: response.data.username, licenseno: response.data.licence,
-                    autopayment: response.data.payment_plan, profileURL: response.data.profile_url,
-                    id: response.data.id
-                }));
                 toast.success("Profile Updated Successfully");
             } else {
                 toast.error(response.message)

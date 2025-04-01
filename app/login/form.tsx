@@ -1,47 +1,50 @@
 'use client'
 
-import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { setUser } from '@/lib/features/user/userSlice'
-import { useDispatch } from 'react-redux';
-import { API_CONSTANTS } from '@/APIConstants'
+import { API_CONSTANTS } from '@/constants/ApiConstants'
 import { toast } from 'sonner'
-import { setUserCookie } from '@/components/cookies'
+import { useAuth } from '@/authContext/authContext'
+import { setCookie } from 'cookies-next'
 
 
 
 export const LoginForm = () => {
     const [username, setUsername] = useState('')
     const [licenseno, setLicenseno] = useState('')
-    const dispatch = useDispatch();
+    const { login } = useAuth();
 
     const router = useRouter();
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
-        let url = API_CONSTANTS.USER_API + '/' + username + '/' + licenseno;
+        let url = API_CONSTANTS.LOGIN;
 
         try {
             const res = await fetch(url, {
-                method: 'GET',
+                method: 'POST',
+                body: JSON.stringify({
+                    username: username,
+                    licence: licenseno,
+                }),
                 headers: {
                     'Content-Type': 'application/json'
                 }
             })
             let response = await res.json();
             if (response.status == 'success') {
-                setUserCookie(response.data.username, response.data.licence);
-                dispatch(setUser({username: response.data.username, licenseno: response.data.licence, id: response.data.id, 
-                    autopayment: response.data.payment_plan, profileURL: response.data.profile_url}));
+                console.log(response);
+                login(response.data.username);
+                setCookie('Token', response.data.token);
+                localStorage.setItem("license", response.data.licence);
                 toast.success("Login Successful");
                 router.push('/dashboard');
             } else {
-                toast.error(response.message)
+                toast.error("Login Failed. Please Try Again")
             }
         } catch (error: any) {
             toast.error(error?.message)
