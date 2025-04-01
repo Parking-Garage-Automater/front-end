@@ -37,10 +37,11 @@ export const LoginForm = () => {
             })
             let response = await res.json();
             if (response.status == 'success') {
-                console.log(response);
                 login(response.data.username);
                 setCookie('Token', response.data.token);
-                localStorage.setItem("license", response.data.licence);
+                if (typeof window !== "undefined"){
+                    window.localStorage.setItem("license", response.data.licence);
+                }
                 toast.success("Login Successful");
                 router.push('/dashboard');
             } else {

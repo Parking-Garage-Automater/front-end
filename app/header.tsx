@@ -35,7 +35,10 @@ export default function Header() {
   }, [])
 
   const fetchData = async () => {
-    let licenseno: any = localStorage.getItem('license') || 0;
+    let licenseno: any;
+    if (typeof window !== "undefined"){
+      licenseno = window.localStorage.getItem('license') || '';
+    }
     let url = API_CONSTANTS.GET_USER_DETAILS + licenseno;
     const res = await fetch(url, {
         method: 'GET',
@@ -44,14 +47,15 @@ export default function Header() {
         }
     })
     let response = await res.json();
-    console.log(localStorage.getItem('license'), response);
     if(response.status == 'success'){
         let userData = response.data;
         setUsername(userData?.username || '');
 
     } else {
         logout();
-        localStorage.removeItem('license');
+        if (typeof window !== "undefined"){
+          window.localStorage.removeItem('license');
+        }
         deleteCookie('Token');
         router.push('/login');
     }
@@ -59,7 +63,9 @@ export default function Header() {
 
   const logoutAccount = () => {
     logout();
-    localStorage.removeItem('license');
+    if (typeof window !== "undefined"){
+      window.localStorage.removeItem('license');
+    }
     deleteCookie('Token');
     router.push('/login');
   }

@@ -37,7 +37,10 @@ export function ProfileForm() {
 	}, [])
 
     const fetchData = async () => {
-        let licenseno: any = localStorage.getItem('license') || 0;
+        let licenseno: any;
+        if (typeof window !== "undefined"){
+            licenseno = window.localStorage.getItem('license') || '';
+        }
         setLicenseno(licenseno);
         let url = API_CONSTANTS.GET_USER_DETAILS + licenseno;
         const res = await fetch(url, {
@@ -46,9 +49,7 @@ export function ProfileForm() {
                 'Content-Type': 'application/json'
             }
         });
-        console.log(await res)
         let response = await res.json();
-        console.log(localStorage.getItem('license'), response);
         if(response.status == 'success'){
             let userData = response.data;
             setUsername(userData?.username || '');
@@ -57,7 +58,9 @@ export function ProfileForm() {
             setPaymentPlan(userData?.payment_plan || false);
         } else {
             logout();
-            localStorage.removeItem('license');
+            if (typeof window !== "undefined"){
+                window.localStorage.removeItem('license');
+            }
             deleteCookie('Token');
             toast.error("Failed to fetch user data");
             router.push('/login');

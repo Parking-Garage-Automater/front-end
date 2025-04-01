@@ -31,7 +31,10 @@ const GridComponent = () => {
 
     useEffect(() => {
         let url: string = API_CONSTANTS.GET_HISTORY_ALL;
-        let licenseno: string = localStorage.getItem('license') || '';
+        let licenseno: string = '';
+        if (typeof window !== "undefined"){
+            licenseno = window.localStorage.getItem('license') || '';
+        }
         if(licenseno !== 'admin'){
             url = API_CONSTANTS.GET_HISTORY + licenseno
         }

@@ -18,7 +18,10 @@ export default function Dashboard() {
 		a1: false,
 		a2: false,
 	});
-	const licenseno: string = localStorage.getItem('license') || '';
+	let licenseno: string = '';
+	if (typeof window !== "undefined"){
+		licenseno = window.localStorage.getItem('license') || '';
+	}
 
 
 	useEffect(() => {
@@ -38,12 +41,15 @@ export default function Dashboard() {
 
 	const MakePayment = async () => {
 		try {
-			const license = localStorage.getItem('license') || '';
+			let licenseno: string = '';
+			if (typeof window !== "undefined"){
+				licenseno = window.localStorage.getItem('license') || '';
+			}
 			let url = API_CONSTANTS.PAYMENT;
 			const res = await fetch(url, {
 				method: 'POST',
 				body: JSON.stringify({
-					plate_number: license,
+					plate_number: licenseno,
 					source: "website",
 				}),
 				headers: {
