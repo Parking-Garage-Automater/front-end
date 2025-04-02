@@ -15,25 +15,36 @@ import { API_CONSTANTS } from "@/constants/ApiConstants";
 
 export default function Dashboard() {
 	const [parkingSpots, setParkingSpots] = useState<{ [key: string]: boolean }>({
-		a1: false,
-		a2: false,
+		SLOT1: false,
+		SLOT2: false,
 	});
+	const [ocrAPIResponse, SetOcrAPIResponse] = useState('');
 	let licenseno: string = '';
 	if (typeof window !== "undefined"){
 		licenseno = window.localStorage.getItem('license') || '';
 	}
 
+	const setOCRResponse = async () => {
+		const res = await fetch(API_CONSTANTS.HETZNER_OCR_URL, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				'x-api-key': '1241414'
+			}
+		})
+		let response = await res.json();
+		SetOcrAPIResponse(response);
+	}
+
 
 	useEffect(() => {
+		setOCRResponse();
 		const worker = new Worker("/parkingSpotWorker.js");
 		worker.postMessage({ apiUrl: API_CONSTANTS.GET_PARKING_SPOT_STATUS });
 
 		worker.onmessage = (event) => {
-			console.log(event.data);
 			let parkingSpotData = event.data;
-			if (parkingSpotData.amount_in_use > 0) {
-				setParkingSpots(parkingSpotData.lot)
-			}
+			setParkingSpots(parkingSpotData.lot)
 		};
 
 		return () => worker.terminate();
@@ -78,7 +89,7 @@ export default function Dashboard() {
 					<div className="sm:h-[calc(99vh-60px)] overflow-auto ">
 						<div className="w-full flex justify-center mx-auto   overflow-auto h-[calc(100vh - 120px)] overflow-y-auto relative">
 							<div className='flex flex-col gap-2 pt-3'>
-								{licenseno !== 'admin' && <div className="flex justify-center">
+								{licenseno !== 'admin' ? <div className="flex justify-center">
 									<Card className="w-[25vw] h-[12vh]">
 										<CardHeader>
 											<CardTitle className="text-center text-black">Make Payment</CardTitle>
@@ -88,7 +99,8 @@ export default function Dashboard() {
 												</Button></CardDescription>
 										</CardHeader>
 									</Card>
-								</div>}
+								</div> : <div> {ocrAPIResponse}
+									</div>}
 								<div className="flex justify-center gap-4">
 									{Object.entries(parkingSpots).map(([key, value]) => (
 										<div key={key}>

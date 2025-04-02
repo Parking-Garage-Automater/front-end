@@ -15,5 +15,5 @@ self.onmessage = async (event) => {
     };
 
     fetchData();
-    setInterval(fetchData, 5000);
+    setInterval(fetchData, 3000);
 };

@@ -44,7 +44,6 @@ const GridComponent = () => {
                 if (data.detail) {
                     toast.error(data.detail);
                 } else {
-                    console.log(data);
                     const formattedData = data.history.flatMap((session: any) =>
                         session.payments
                             .map((payment: any) => ({

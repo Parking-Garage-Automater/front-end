@@ -1,5 +1,5 @@
 const HETZNER_BASE_URL = "https://iot.nielstesting.nl/";
-const USER_LOCALHOST_URL = "http://localhost:5500/api/v1/";
+const HETZNER_OCR_URL = "http://138.199.217.16/ocr/";
 
 export const API_CONSTANTS: any = {
     LOGIN: HETZNER_BASE_URL + "us/api/login",
@@ -10,7 +10,8 @@ export const API_CONSTANTS: any = {
     PAYMENT: HETZNER_BASE_URL + "ps/api/v1/payments",
     GET_HISTORY: HETZNER_BASE_URL + "ps/api/v1/history?plate_number=",
     GET_HISTORY_ALL: HETZNER_BASE_URL + "ps/api/v1/history/all/",
-    GET_PARKING_SPOT_STATUS: HETZNER_BASE_URL + "pt/parking"
+    GET_PARKING_SPOT_STATUS: HETZNER_BASE_URL + "pt/parking",
+    HETZNER_OCR_URL: HETZNER_OCR_URL
 };
 
 
