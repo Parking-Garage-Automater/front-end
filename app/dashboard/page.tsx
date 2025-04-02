@@ -18,33 +18,21 @@ export default function Dashboard() {
 		SLOT1: false,
 		SLOT2: false,
 	});
-	const [ocrAPIResponse, SetOcrAPIResponse] = useState('');
-	let licenseno: string = '';
-	if (typeof window !== "undefined"){
-		licenseno = window.localStorage.getItem('license') || '';
-	}
-
-	const setOCRResponse = async () => {
-		const res = await fetch(API_CONSTANTS.HETZNER_OCR_URL, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-				'x-api-key': '1241414'
-			}
-		})
-		let response = await res.json();
-		SetOcrAPIResponse(response);
-	}
-
+	const [licenseno, setLicenseNo] = useState<string | null>(null);
 
 	useEffect(() => {
-		//setOCRResponse();
+		// Access localStorage only in useEffect to prevent hydration mismatch
+		if (typeof window !== "undefined") {
+			setLicenseNo(window.localStorage.getItem('license') || '');
+		}
+
+		// Initialize Web Worker for parking spot updates
 		const worker = new Worker("/parkingSpotWorker.js");
 		worker.postMessage({ apiUrl: API_CONSTANTS.GET_PARKING_SPOT_STATUS });
 
 		worker.onmessage = (event) => {
 			let parkingSpotData = event.data;
-			setParkingSpots(parkingSpotData.lot)
+			setParkingSpots(parkingSpotData.lot);
 		};
 
 		return () => worker.terminate();
@@ -52,55 +40,55 @@ export default function Dashboard() {
 
 	const MakePayment = async () => {
 		try {
-			let licenseno: string = '';
+			let license: string = '';
 			if (typeof window !== "undefined"){
-				licenseno = window.localStorage.getItem('license') || '';
+				license = window.localStorage.getItem('license') || '';
 			}
-			let url = API_CONSTANTS.PAYMENT;
-			const res = await fetch(url, {
+			const res = await fetch(API_CONSTANTS.PAYMENT, {
 				method: 'POST',
 				body: JSON.stringify({
-					plate_number: licenseno,
+					plate_number: license,
 					source: "website",
 				}),
 				headers: {
 					'Content-Type': 'application/json'
 				}
-			})
+			});
+
 			let response = await res.json();
-			console.log(response);
-			if (response.status == 'success') {
-				console.log(response);
-				toast.success("Login Successful");
+			if (response.status === 'success') {
+				toast.success("Payment Successful");
 			} else {
 				toast.error(response.detail);
 			}
 		} catch (error: any) {
-			toast.error(error?.message)
+			toast.error(error?.message);
 		}
 	};
 
 	return (
-		(<div>
+		<div>
 			<Header />
 			<div className="flex">
 				<SideNav />
 				<div className="w-full overflow-x-auto">
-					<div className="sm:h-[calc(99vh-60px)] overflow-auto ">
-						<div className="w-full flex justify-center mx-auto   overflow-auto h-[calc(100vh - 120px)] overflow-y-auto relative">
+					<div className="sm:h-[calc(99vh-60px)] overflow-auto">
+						<div className="w-full flex justify-center mx-auto h-[calc(100vh - 120px)] overflow-y-auto relative">
 							<div className='flex flex-col gap-2 pt-3'>
-								{licenseno !== 'admin' ? <div className="flex justify-center">
-									<Card className="w-[25vw] h-[12vh]">
-										<CardHeader>
-											<CardTitle className="text-center text-black">Make Payment</CardTitle>
-											<CardDescription className="text-center">
-												<Button onClick={MakePayment}>
-													Pay
-												</Button></CardDescription>
-										</CardHeader>
-									</Card>
-								</div> : <div> {ocrAPIResponse}
-									</div>}
+								{licenseno && licenseno !== 'admin' && (
+									<div className="flex justify-center">
+										<Card className="w-[25vw] h-[12vh]">
+											<CardHeader>
+												<CardTitle className="text-center text-black">Make Payment</CardTitle>
+												<CardDescription className="text-center">
+													<Button onClick={MakePayment}>
+														Pay
+													</Button>
+												</CardDescription>
+											</CardHeader>
+										</Card>
+									</div>
+								)}
 								<div className="flex justify-center gap-4">
 									{Object.entries(parkingSpots).map(([key, value]) => (
 										<div key={key}>
@@ -112,15 +100,12 @@ export default function Dashboard() {
 											</Card>
 										</div>
 									))}
-
 								</div>
-
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-		)
 	);
 }
