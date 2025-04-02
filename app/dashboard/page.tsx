@@ -38,7 +38,7 @@ export default function Dashboard() {
 
 
 	useEffect(() => {
-		setOCRResponse();
+		//setOCRResponse();
 		const worker = new Worker("/parkingSpotWorker.js");
 		worker.postMessage({ apiUrl: API_CONSTANTS.GET_PARKING_SPOT_STATUS });
 
